@@ -1,0 +1,183 @@
+/* DuoDesk Custom Styles */
+
+/* Global Styles */
+body {
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.footer {
+    margin-top: 3rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 0.5rem;
+    border: none;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Priority and Status Badges */
+.priority-high {
+    background-color: #dc3545;
+}
+
+.priority-medium {
+    background-color: #fd7e14;
+}
+
+.priority-low {
+    background-color: #198754;
+}
+
+.status-pending {
+    background-color: #dc3545;
+}
+
+.status-progress {
+    background-color: #fd7e14;
+}
+
+.status-resolved {
+    background-color: #198754;
+}
+
+/* Query and Response Styling */
+.query-content, .response-content {
+    white-space: pre-line;
+}
+
+/* Code Snippets */
+pre {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+/* Form Controls */
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* List Group Customization */
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+}
+
+/* Breadcrumb Styling */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+}
+
+/* Responsive Utilities */
+@media (max-width: 767.98px) {
+    .card-header-tabs {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
+
+/* Animation for Alert Messages */
+.alert-dismissible {
+    animation: fadeInDown 0.5s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Helper Classes */
+.text-truncate-2 {
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+    -webkit-line-clamp: 2;
+    -moz-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.6em; /* Fallback for non-WebKit browsers - 2 lines × 1.3 line-height */
+    line-height: 1.3em;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #6c63ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.initials {
+    font-size: 1.1rem;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #181a1b;
+    color: #e0e0e0;
+}
+.card.dark-mode, .navbar-dark.bg-primary.dark-mode, .footer.dark-mode, .dropdown-menu.dark-mode {
+    background-color: #23272b !important;
+    color: #e0e0e0 !important;
+    border-color: #23272b !important;
+}
+.navbar-dark.bg-primary.dark-mode {
+    background-color: #23272b !important;
+}
+.card-header.dark-mode, .card-footer.dark-mode {
+    background-color: #23272b !important;
+    color: #e0e0e0 !important;
+}
+.list-group-item.dark-mode {
+    background-color: #23272b !important;
+    color: #e0e0e0 !important;
+}
+.btn-dark-toggle {
+    background: #23272b;
+    color: #fff;
+    border: 1px solid #444;
+}
+.btn-dark-toggle.active, .btn-dark-toggle:active {
+    background: #6c63ff;
+    color: #fff;
+}

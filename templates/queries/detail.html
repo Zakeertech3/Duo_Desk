@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{{ query.title }} - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('queries_list') }}">Queries</a></li>
+                <li class="breadcrumb-item active">{{ query.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Query Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ query.title }}</h4>
+                <div>
+                    <span class="badge {{ query.priority|priority_class }}">{{ query.priority }}</span>
+                    <span class="badge {{ query.status|status_class }}">{{ query.status }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ query_user.name }}</div>
+                            <div class="text-muted small">{{ query.created_at|format_datetime }}</div>
+                        </div>
+                    </div>
+                    <div class="query-content">
+                        {{ query.content|nl2br }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Responses Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Responses ({{ query.responses|length }})</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if query.responses %}
+                <div class="list-group list-group-flush">
+                    {% for response in query.responses %}
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2">
+                                <i class="fas fa-user-circle fa-2x {% if response.user_id == current_user.id %}text-primary{% else %}text-success{% endif %}"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ response_users[response.user_id].name }}</div>
+                                <div class="text-muted small">{{ response.created_at|format_datetime }}</div>
+                            </div>
+                        </div>
+                        <div class="response-content">
+                            {{ response.content|nl2br }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <p class="text-muted">No responses yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Add Response Form -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-reply me-2"></i>Add Response</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('respond_to_query', query_id=query.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <textarea class="form-control" name="content" rows="4" placeholder="Type your response here..." required></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Submit Response
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Status Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Query Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <form method="POST" action="{{ url_for('update_query_status', query_id=query.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="input-group">
+                            <select class="form-select" name="status">
+                                <option value="pending" {% if query.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="in_progress" {% if query.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="resolved" {% if query.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Created By</label>
+                    <p class="mb-0">{{ query_user.name }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Created On</label>
+                    <p class="mb-0">{{ query.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                </div>
+                
+                <div>
+                    <label class="form-label fw-bold">Last Update</label>
+                    <p class="mb-0">{{ query.updated_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('create_resource', resource_type='link') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-link me-1"></i> Share Related Link
+                    </a>
+                    <a href="{{ url_for('create_resource', resource_type='file') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-file-upload me-1"></i> Upload Related File
+                    </a>
+                    <a href="{{ url_for('create_query') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus-circle me-1"></i> Create New Query
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

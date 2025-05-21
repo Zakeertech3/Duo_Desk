@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Create Query - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('queries_list') }}">Queries</a></li>
+                <li class="breadcrumb-item active">Create Query</li>
+            </ol>
+        </nav>
+        <h1 class="h3 mb-0">Create New Query</h1>
+        <p class="text-muted">Post a new question or issue for your colleague</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('create_query') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ title|default('') }}" required>
+                        <div class="form-text">Provide a clear, concise title for your query</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="6" required>{{ content|default('') }}</textarea>
+                        <div class="form-text">Describe your query in detail. You can use markdown for formatting.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="">Select priority level</option>
+                            <option value="low" {% if priority == 'low' %}selected{% endif %}>Low - Can be addressed when convenient</option>
+                            <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium - Should be addressed soon</option>
+                            <option value="high" {% if priority == 'high' %}selected{% endif %}>High - Requires immediate attention</option>
+                        </select>
+                        <div class="form-text">Select the appropriate priority level for your query</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('queries_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Query</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips for Good Queries</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Use a descriptive title that summarizes the issue</li>
+                    <li>Include all relevant details in the content</li>
+                    <li>Specify what you've already tried, if applicable</li>
+                    <li>Add context about why this query is important</li>
+                    <li>Set an appropriate priority level</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Priority Guide</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <span class="badge bg-danger">High</span>
+                    <p class="small mb-0">Use for urgent issues that require immediate attention and have significant impact</p>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-warning">Medium</span>
+                    <p class="small mb-0">Use for important issues that should be addressed soon but aren't critically urgent</p>
+                </div>
+                <div>
+                    <span class="badge bg-success">Low</span>
+                    <p class="small mb-0">Use for non-urgent issues that can be addressed when convenient</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

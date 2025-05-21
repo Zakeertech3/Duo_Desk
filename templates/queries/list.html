@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Queries - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3 mb-0">Queries</h1>
+        <p class="text-muted">Manage all queries and their responses</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('create_query') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> New Query
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link {% if not status_filter and not priority_filter %}active{% endif %}" href="{{ url_for('queries_list') }}">
+                            All Queries
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'pending' %}active{% endif %}" href="{{ url_for('queries_list', status='pending') }}">
+                            Pending
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'in_progress' %}active{% endif %}" href="{{ url_for('queries_list', status='in_progress') }}">
+                            In Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if status_filter == 'resolved' %}active{% endif %}" href="{{ url_for('queries_list', status='resolved') }}">
+                            Resolved
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if priority_filter %}active{% endif %}" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                            Priority
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item {% if priority_filter == 'high' %}active{% endif %}" href="{{ url_for('queries_list', priority='high') }}">High</a></li>
+                            <li><a class="dropdown-item {% if priority_filter == 'medium' %}active{% endif %}" href="{{ url_for('queries_list', priority='medium') }}">Medium</a></li>
+                            <li><a class="dropdown-item {% if priority_filter == 'low' %}active{% endif %}" href="{{ url_for('queries_list', priority='low') }}">Low</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                {% if queries %}
+                <div class="row g-3 p-3">
+                    {% for query in queries %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar-circle me-2">
+                                        <span class="initials">{{ query_user.name[0]|upper if query_user else '?' }}</span>
+                                    </div>
+                                    <h5 class="card-title mb-1 flex-grow-1">
+                                        <a href="{{ url_for('query_detail', query_id=query.id) }}" class="fw-bold text-decoration-none">{{ query.title }}</a>
+                                    </h5>
+                                </div>
+                                <p class="card-text text-truncate-2">{{ query.content }}</p>
+                                <div class="mb-2">
+                                    <span class="badge {{ query.priority|priority_class }}">{{ query.priority }}</span>
+                                    <span class="badge {{ query.status|status_class }}">{{ query.status }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                    <span>{{ query.responses|length }} responses</span>
+                                    <span>{{ query.created_at|format_datetime }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <img src="https://undraw.co/api/illustrations/empty?color=6c63ff" alt="No queries" style="max-width:200px;" class="mb-3">
+                    <p class="text-muted">No queries yet.</p>
+                    <a href="{{ url_for('create_query') }}" class="btn btn-primary btn-sm">Create your first query</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

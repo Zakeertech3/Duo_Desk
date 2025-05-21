@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Query Status Updated</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            background-color: #198754;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            margin-top: 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #dc3545;
+        }
+        .status-in_progress {
+            background-color: #fd7e14;
+        }
+        .status-resolved {
+            background-color: #198754;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="header">Query Status Updated</h2>
+        <div class="content">
+            <p>Hello {{ recipient.name }},</p>
+            
+            <p>The status of query "<strong>{{ query.title }}</strong>" has been updated:</p>
+            
+            <p>New status: <span class="status status-{{ query.status }}">{{ query.status|replace('_', ' ')|upper }}</span></p>
+            
+            <p><strong>Updated by:</strong> {{ updater.name }}</p>
+            <p><strong>Updated at:</strong> {{ query.updated_at.strftime('%B %d, %Y at %H:%M') }}</p>
+            
+            <a href="{{ url }}" class="btn">View Query</a>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from DuoDesk.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3 mb-0">Dashboard</h1>
+        <p class="text-muted">Overview of your collaboration workspace</p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group">
+            <a href="{{ url_for('create_query') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> New Query
+            </a>
+            <a href="{{ url_for('create_resource') }}" class="btn btn-outline-primary">
+                <i class="fas fa-folder-plus me-1"></i> Add Resource
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Section -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Query Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-around">
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-danger">{{ status_counts.get('pending', 0) }}</div>
+                        <div class="small text-muted">Pending</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-warning">{{ status_counts.get('in_progress', 0) }}</div>
+                        <div class="small text-muted">In Progress</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-success">{{ status_counts.get('resolved', 0) }}</div>
+                        <div class="small text-muted">Resolved</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height: 24px;">
+                        {% set total = status_counts.get('pending', 0) + status_counts.get('in_progress', 0) + status_counts.get('resolved', 0) %}
+                        {% if total > 0 %}
+                        <div class="progress-bar bg-danger" style="width: {{ (status_counts.get('pending', 0) / total * 100)|round }}%">
+                            {{ status_counts.get('pending', 0) }}
+                        </div>
+                        <div class="progress-bar bg-warning" style="width: {{ (status_counts.get('in_progress', 0) / total * 100)|round }}%">
+                            {{ status_counts.get('in_progress', 0) }}
+                        </div>
+                        <div class="progress-bar bg-success" style="width: {{ (status_counts.get('resolved', 0) / total * 100)|round }}%">
+                            {{ status_counts.get('resolved', 0) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{{ url_for('queries_list') }}" class="text-decoration-none">View all queries <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-flag me-2"></i>Query Priority</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-around">
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-success">{{ priority_counts.get('low', 0) }}</div>
+                        <div class="small text-muted">Low</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-warning">{{ priority_counts.get('medium', 0) }}</div>
+                        <div class="small text-muted">Medium</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="h3 mb-0 text-danger">{{ priority_counts.get('high', 0) }}</div>
+                        <div class="small text-muted">High</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height: 24px;">
+                        {% set total = priority_counts.get('low', 0) + priority_counts.get('medium', 0) + priority_counts.get('high', 0) %}
+                        {% if total > 0 %}
+                        <div class="progress-bar bg-success" style="width: {{ (priority_counts.get('low', 0) / total * 100)|round }}%">
+                            {{ priority_counts.get('low', 0) }}
+                        </div>
+                        <div class="progress-bar bg-warning" style="width: {{ (priority_counts.get('medium', 0) / total * 100)|round }}%">
+                            {{ priority_counts.get('medium', 0) }}
+                        </div>
+                        <div class="progress-bar bg-danger" style="width: {{ (priority_counts.get('high', 0) / total * 100)|round }}%">
+                            {{ priority_counts.get('high', 0) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{{ url_for('queries_list', priority='high') }}" class="text-decoration-none">View high priority <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('create_query') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-plus-circle text-primary me-2"></i> Create new query
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                    <a href="{{ url_for('create_resource', resource_type='link') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-link text-primary me-2"></i> Share a link
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                    <a href="{{ url_for('create_resource', resource_type='file') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-file-upload text-primary me-2"></i> Upload a file
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                    <a href="{{ url_for('create_resource', resource_type='code') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-code text-primary me-2"></i> Share code snippet
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Queries</h5>
+                <a href="{{ url_for('queries_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_queries %}
+                <div class="list-group list-group-flush">
+                    {% for query in recent_queries %}
+                    <a href="{{ url_for('query_detail', query_id=query.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ query.title }}</h5>
+                            <small class="text-muted">{{ query.created_at|format_datetime }}</small>
+                        </div>
+                        <p class="mb-1 text-truncate">{{ query.content }}</p>
+                        <div>
+                            <span class="badge {{ query.priority|priority_class }}">{{ query.priority }}</span>
+                            <span class="badge {{ query.status|status_class }}">{{ query.status }}</span>
+                            <small class="text-muted ms-2">{{ query.responses|length }} response(s)</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <p class="text-muted">No queries yet.</p>
+                    <a href="{{ url_for('create_query') }}" class="btn btn-primary btn-sm">Create your first query</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>High Priority Queries</h5>
+                <a href="{{ url_for('queries_list', priority='high') }}" class="btn btn-sm btn-outline-danger">View All High Priority</a>
+            </div>
+            <div class="card-body p-0">
+                {% if high_priority_queries %}
+                <div class="list-group list-group-flush">
+                    {% for query in high_priority_queries %}
+                    <a href="{{ url_for('query_detail', query_id=query.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ query.title }}</h5>
+                            <small class="text-muted">{{ query.created_at|format_datetime }}</small>
+                        </div>
+                        <p class="mb-1 text-truncate">{{ query.content }}</p>
+                        <div>
+                            <span class="badge {{ query.status|status_class }}">{{ query.status }}</span>
+                            <small class="text-muted ms-2">{{ query.responses|length }} response(s)</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <p class="text-muted">No high priority queries at the moment.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-bookmark me-2"></i>Bookmarked Resources</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if bookmarked_resources %}
+                <div class="list-group list-group-flush">
+                    {% for resource in bookmarked_resources %}
+                    <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                {% if resource.resource_type == 'link' %}
+                                <i class="fas fa-link text-primary me-1"></i>
+                                {% elif resource.resource_type == 'file' %}
+                                <i class="fas fa-file text-success me-1"></i>
+                                {% elif resource.resource_type == 'code' %}
+                                <i class="fas fa-code text-warning me-1"></i>
+                                {% else %}
+                                <i class="fas fa-sticky-note text-info me-1"></i>
+                                {% endif %}
+                                {{ resource.title }}
+                            </h5>
+                        </div>
+                        <small class="text-muted">{{ resource.created_at|format_datetime }}</small>
+                        {% if resource.tags %}
+                        <div class="mt-1">
+                            {% for tag in resource.tags %}
+                            <span class="badge bg-secondary">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <p class="text-muted">No bookmarked resources yet.</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{{ url_for('resources_list') }}" class="text-decoration-none">View all resources <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About DuoDesk</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>DuoDesk</strong> is a private collaboration platform designed specifically for two colleagues to share queries and resources.</p>
+                <ul class="mb-0">
+                    <li>Post queries with priority levels</li>
+                    <li>Track query status and responses</li>
+                    <li>Share various types of resources</li>
+                    <li>Organize resources with tags</li>
+                    <li>Bookmark important items</li>
+                    <li>Search across all content</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

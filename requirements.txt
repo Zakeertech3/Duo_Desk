@@ -1,0 +1,8 @@
+flask
+pymongo
+python-dotenv
+flask-wtf
+werkzeug
+Flask-Login
+email-validator
+flask-mail

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3 mb-0">Search Results</h1>
+        <p class="text-muted">Results for "{{ query }}"</p>
+    </div>
+    <div class="col-auto">
+        <form class="d-flex" action="{{ url_for('search') }}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ query }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search me-1"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if not query %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i> Enter a search term to find queries and resources.
+</div>
+{% else %}
+    {% if not queries and not resources %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i> No results found for "{{ query }}". Try a different search term.
+    </div>
+    {% endif %}
+{% endif %}
+
+{% if queries %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Queries ({{ queries|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for query in queries %}
+            <a href="{{ url_for('query_detail', query_id=query.id) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ query.title }}</h5>
+                    <small class="text-muted">{{ query.created_at|format_datetime }}</small>
+                </div>
+                <p class="mb-1 text-truncate">{{ query.content }}</p>
+                <div>
+                    <span class="badge {{ query.priority|priority_class }}">{{ query.priority }}</span>
+                    <span class="badge {{ query.status|status_class }}">{{ query.status }}</span>
+                    <small class="text-muted ms-2">{{ query.responses|length }} response(s)</small>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if resources %}
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Resources ({{ resources|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for resource in resources %}
+            <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">
+                            {% if resource.resource_type == 'link' %}
+                            <i class="fas fa-link text-primary me-1"></i>
+                            {% elif resource.resource_type == 'file' %}
+                            <i class="fas fa-file text-success me-1"></i>
+                            {% elif resource.resource_type == 'code' %}
+                            <i class="fas fa-code text-warning me-1"></i>
+                            {% else %}
+                            <i class="fas fa-sticky-note text-info me-1"></i>
+                            {% endif %}
+                            {{ resource.title }}
+                        </h5>
+                        
+                        {% if resource.resource_type == 'link' %}
+                        <p class="mb-1 text-truncate text-muted">
+                            <i class="fas fa-external-link-alt me-1"></i> {{ resource.content }}
+                        </p>
+                        {% elif resource.resource_type == 'file' %}
+                        <p class="mb-1 text-muted">
+                            <i class="fas fa-paperclip me-1"></i> File attachment
+                        </p>
+                        {% elif resource.resource_type == 'code' %}
+                        <p class="mb-1 text-truncate text-muted">
+                            <i class="fas fa-code me-1"></i> Code snippet
+                        </p>
+                        {% else %}
+                        <p class="mb-1 text-truncate">{{ resource.content }}</p>
+                        {% endif %}
+                        
+                        {% if resource.tags %}
+                        <div class="mt-1">
+                            {% for tag in resource.tags %}
+                            <span class="badge bg-secondary">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted ms-3">{{ resource.created_at|format_datetime }}</small>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

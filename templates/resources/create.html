@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Add Resource - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('resources_list') }}">Resources</a></li>
+                <li class="breadcrumb-item active">Add Resource</li>
+            </ol>
+        </nav>
+        <h1 class="h3 mb-0">Add New Resource</h1>
+        <p class="text-muted">Share a link, file, note, or code snippet with your colleague</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.args.get('resource_type') == 'link' or not request.args.get('resource_type') %}active{% endif %}" 
+                           href="{{ url_for('create_resource', resource_type='link') }}">
+                            <i class="fas fa-link me-1"></i> Link
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.args.get('resource_type') == 'file' %}active{% endif %}" 
+                           href="{{ url_for('create_resource', resource_type='file') }}">
+                            <i class="fas fa-file me-1"></i> File
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.args.get('resource_type') == 'note' %}active{% endif %}" 
+                           href="{{ url_for('create_resource', resource_type='note') }}">
+                            <i class="fas fa-sticky-note me-1"></i> Note
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.args.get('resource_type') == 'code' %}active{% endif %}" 
+                           href="{{ url_for('create_resource', resource_type='code') }}">
+                            <i class="fas fa-code me-1"></i> Code
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('create_resource') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <!-- Resource Type -->
+                    <input type="hidden" name="resource_type" value="{{ request.args.get('resource_type', 'link') }}">
+                    
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ title|default('') }}" required>
+                        <div class="form-text">Provide a descriptive title for this resource</div>
+                    </div>
+                    
+                    {% if request.args.get('resource_type') == 'link' or not request.args.get('resource_type') %}
+                    <!-- Link Content -->
+                    <div class="mb-3">
+                        <label for="content" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="content" name="content" value="{{ content|default('') }}" required>
+                        <div class="form-text">Enter the full URL (including https://)</div>
+                    </div>
+                    {% elif request.args.get('resource_type') == 'file' %}
+                    <!-- File Upload -->
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="form-text">
+                            Allowed file types: .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .png, .jpg, .jpeg, .gif<br>
+                            Maximum size: 16 MB
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="content" name="content" rows="3">{{ content|default('') }}</textarea>
+                    </div>
+                    {% elif request.args.get('resource_type') == 'note' %}
+                    <!-- Note Content -->
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Note Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="8" required>{{ content|default('') }}</textarea>
+                        <div class="form-text">You can use markdown formatting</div>
+                    </div>
+                    {% elif request.args.get('resource_type') == 'code' %}
+                    <!-- Code Content -->
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Code Snippet</label>
+                        <textarea class="form-control font-monospace" id="content" name="content" rows="12" required>{{ content|default('') }}</textarea>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Tags -->
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags</label>
+                        <input type="text" class="form-control" id="tags" name="tags" value="{{ tags|default('') }}">
+                        <div class="form-text">Separate tags with commas (e.g. documentation, tutorial, reference)</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('resources_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Resource</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    {% if request.args.get('resource_type') == 'link' or not request.args.get('resource_type') %}
+                    <i class="fas fa-link me-2"></i>About Links
+                    {% elif request.args.get('resource_type') == 'file' %}
+                    <i class="fas fa-file me-2"></i>About Files
+                    {% elif request.args.get('resource_type') == 'note' %}
+                    <i class="fas fa-sticky-note me-2"></i>About Notes
+                    {% elif request.args.get('resource_type') == 'code' %}
+                    <i class="fas fa-code me-2"></i>About Code Snippets
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if request.args.get('resource_type') == 'link' or not request.args.get('resource_type') %}
+                <p>Links are useful for sharing websites, articles, documentation, or other online resources.</p>
+                <ul class="mb-0">
+                    <li>Always include the full URL with http:// or https://</li>
+                    <li>Add descriptive tags to make the link easier to find later</li>
+                    <li>Use a clear, descriptive title that explains what the link contains</li>
+                </ul>
+                {% elif request.args.get('resource_type') == 'file' %}
+                <p>Files allow you to share documents, images, spreadsheets, or other files with your colleague.</p>
+                <ul class="mb-0">
+                    <li>Files are stored securely and can be downloaded anytime</li>
+                    <li>Add a description to explain what the file contains</li>
+                    <li>Use version numbers in the title if you'll be updating the file</li>
+                </ul>
+                {% elif request.args.get('resource_type') == 'note' %}
+                <p>Notes are perfect for sharing information, instructions, or ideas that don't require a separate file.</p>
+                <ul class="mb-0">
+                    <li>You can use markdown formatting in notes</li>
+                    <li>Notes can be edited after creation</li>
+                    <li>Consider using notes for process documentation or quick reference guides</li>
+                </ul>
+                {% elif request.args.get('resource_type') == 'code' %}
+                <p>Code snippets are ideal for sharing programming solutions, examples, or configurations.</p>
+                <ul class="mb-0">
+                    <li>Include comments to explain how the code works</li>
+                    <li>Specify the programming language in the title or tags</li>
+                    <li>Consider including example usage if applicable</li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-tags me-2"></i>About Tags</h5>
+            </div>
+            <div class="card-body">
+                <p>Tags help you organize and find resources more easily.</p>
+                <ul class="mb-0">
+                    <li>Use descriptive, specific tags</li>
+                    <li>Add multiple tags separated by commas</li>
+                    <li>Consider using consistent naming conventions</li>
+                    <li>Examples: documentation, tutorial, reference, important, follow-up</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

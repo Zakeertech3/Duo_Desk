@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Resources - DuoDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3 mb-0">Resources</h1>
+        <p class="text-muted">Manage all shared resources</p>
+    </div>
+    <div class="col-auto">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="addResourceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-plus me-1"></i> Add Resource
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="addResourceDropdown">
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('create_resource', resource_type='link') }}">
+                        <i class="fas fa-link me-2"></i> Link
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('create_resource', resource_type='file') }}">
+                        <i class="fas fa-file me-2"></i> File
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('create_resource', resource_type='note') }}">
+                        <i class="fas fa-sticky-note me-2"></i> Note
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('create_resource', resource_type='code') }}">
+                        <i class="fas fa-code me-2"></i> Code Snippet
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link {% if not type_filter and not tag_filter %}active{% endif %}" href="{{ url_for('resources_list') }}">
+                            All Resources
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if type_filter == 'link' %}active{% endif %}" href="{{ url_for('resources_list', type='link') }}">
+                            <i class="fas fa-link me-1"></i> Links
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if type_filter == 'file' %}active{% endif %}" href="{{ url_for('resources_list', type='file') }}">
+                            <i class="fas fa-file me-1"></i> Files
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if type_filter == 'note' %}active{% endif %}" href="{{ url_for('resources_list', type='note') }}">
+                            <i class="fas fa-sticky-note me-1"></i> Notes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if type_filter == 'code' %}active{% endif %}" href="{{ url_for('resources_list', type='code') }}">
+                            <i class="fas fa-code me-1"></i> Code
+                        </a>
+                    </li>
+                    {% if all_tags %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if tag_filter %}active{% endif %}" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                            <i class="fas fa-tags me-1"></i> Tags
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for tag in all_tags %}
+                            <li>
+                                <a class="dropdown-item {% if tag_filter == tag %}active{% endif %}" href="{{ url_for('resources_list', tag=tag) }}">
+                                    {{ tag }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                {% if resources %}
+                <div class="row g-3 p-3">
+                    {% for resource in resources %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="avatar-circle me-2">
+                                        <span class="initials">{{ resource_user.name[0]|upper if resource_user else '?' }}</span>
+                                    </div>
+                                    <h5 class="card-title mb-1 flex-grow-1">
+                                        {% if resource.resource_type == 'link' %}
+                                        <i class="fas fa-link text-primary me-1"></i>
+                                        {% elif resource.resource_type == 'file' %}
+                                        <i class="fas fa-file text-success me-1"></i>
+                                        {% elif resource.resource_type == 'code' %}
+                                        <i class="fas fa-code text-warning me-1"></i>
+                                        {% else %}
+                                        <i class="fas fa-sticky-note text-info me-1"></i>
+                                        {% endif %}
+                                        {{ resource.title }}
+                                    </h5>
+                                </div>
+                                <p class="card-text text-truncate-2">
+                                    {% if resource.resource_type == 'link' %}
+                                    <i class="fas fa-external-link-alt me-1"></i> {{ resource.content }}
+                                    {% elif resource.resource_type == 'file' %}
+                                    <i class="fas fa-paperclip me-1"></i> File attachment
+                                    {% elif resource.resource_type == 'code' %}
+                                    <i class="fas fa-code me-1"></i> Code snippet
+                                    {% else %}
+                                    {{ resource.content }}
+                                    {% endif %}
+                                </p>
+                                {% if resource.tags %}
+                                <div class="mb-2">
+                                    {% for tag in resource.tags %}
+                                    <span class="badge bg-secondary">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                    <span>{{ resource.created_at|format_datetime }}</span>
+                                    <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <img src="https://undraw.co/api/illustrations/empty?color=6c63ff" alt="No resources" style="max-width:200px;" class="mb-3">
+                    <p class="text-muted">No resources yet.</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('create_resource') }}" class="btn btn-primary btn-sm">Add your first resource</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

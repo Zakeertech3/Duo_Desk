@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>High Priority Query Created</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            margin-top: 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="header">High Priority Query Created</h2>
+        <div class="content">
+            <p>Hello {{ recipient.name }},</p>
+            
+            <p>A new high priority query has been created that may require your attention:</p>
+            
+            <h3>{{ query.title }}</h3>
+            
+            <p><strong>Created by:</strong> {{ creator.name }}</p>
+            <p><strong>Priority:</strong> HIGH</p>
+            <p><strong>Created at:</strong> {{ query.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+            
+            <p><strong>Content:</strong><br>
+            {{ query.content }}
+            </p>
+            
+            <a href="{{ url }}" class="btn">View Query</a>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from DuoDesk.</p>
+        </div>
+    </div>
+</body>
+</html>
