@@ -1,6 +1,11 @@
+import os
 from datetime import datetime
 from bson.objectid import ObjectId
 from models import get_db
+import logging
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class Resource:
     """Resource model."""
@@ -61,6 +66,26 @@ class Resource:
         
         self.is_bookmarked = is_bookmarked
         return is_bookmarked
+    
+    @classmethod
+    def delete(cls, resource_id):
+        """Delete resource by ID."""
+        try:
+            db = get_db()
+            resource = cls.get_by_id(resource_id)
+            
+            # If resource has a file, delete it
+            if resource and resource.file_path:
+                file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
+                                        'static', resource.file_path)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    
+            result = db.resources.delete_one({'_id': ObjectId(resource_id)})
+            return result.deleted_count > 0
+        except Exception as e:
+            logger.error(f"Error deleting resource {resource_id}: {str(e)}")
+            raise Exception(f"Failed to delete resource: {str(e)}")
     
     @classmethod
     def get_by_id(cls, resource_id):

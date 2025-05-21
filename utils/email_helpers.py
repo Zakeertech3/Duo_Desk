@@ -6,22 +6,13 @@ from models.user import User
 logger = logging.getLogger(__name__)
 
 def send_email(mail, subject, recipient_email, template_name, **kwargs):
-    """
-    Send an email using the provided Mail instance.
-    
-    Args:
-        mail: Flask-Mail instance
-        subject: Email subject
-        recipient_email: Recipient's email address
-        template_name: Name of the HTML template for email content
-        **kwargs: Additional template variables
-    
-    Returns:
-        bool: True if email was sent successfully, False otherwise
-    """
+    """Send an email using the provided Mail instance."""
     if not mail or not recipient_email:
         logger.warning("Cannot send email: missing mail instance or recipient")
         return False
+    
+    # Log the actual email being used
+    logger.info(f"Attempting to send email '{subject}' to: {recipient_email}")
     
     # Check if email notifications are enabled
     if not current_app.config.get('MAIL_NOTIFICATIONS_ENABLED', False):
@@ -57,23 +48,19 @@ def notify_high_priority_query(mail, query, creator_id):
         logger.warning(f"Cannot send high priority notification: creator {creator_id} not found")
         return False
     
-    # Get the recipient (the other user, not the creator)
-    users = User.get_all_users()
+    # DIRECTLY USE THE EMAIL ADDRESS FOR TESTING
+    recipient_email = 'tanmaiyee.vadloori@gmail.com'
+    
+    # Get recipient user object
     recipient = None
-    for user in users:
-        if user.id != creator_id:
+    for user in User.get_all_users():
+        if user.email == recipient_email:
             recipient = user
             break
     
     if not recipient:
-        logger.warning("Cannot send high priority notification: no recipient found")
+        logger.warning(f"Cannot send high priority notification: recipient with email {recipient_email} not found")
         return False
-    
-    # Get recipient's email from config based on user ID
-    if recipient.id == users[0].id:  # First user
-        recipient_email = current_app.config.get('USER1_EMAIL')
-    else:  # Second user
-        recipient_email = current_app.config.get('USER2_EMAIL')
     
     # Generate absolute URL for the query
     query_url = url_for('query_detail', query_id=query.id, _external=True)
@@ -82,7 +69,7 @@ def notify_high_priority_query(mail, query, creator_id):
         mail,
         f"High Priority Query: {query.title}",
         recipient_email,
-        "high_priority_query",
+        "high_priority_email",
         query=query,
         recipient=recipient,
         creator=creator,
@@ -91,13 +78,11 @@ def notify_high_priority_query(mail, query, creator_id):
 
 def notify_new_response(mail, query, response, responder_id):
     """Send notification for new response."""
-    # Get the responder
     responder = User.get_by_id(responder_id)
     if not responder:
         logger.warning(f"Cannot send response notification: responder {responder_id} not found")
         return False
     
-    # Get the query creator (the recipient of this notification)
     query_creator = User.get_by_id(query.user_id)
     if not query_creator:
         logger.warning(f"Cannot send response notification: query creator {query.user_id} not found")
@@ -108,11 +93,11 @@ def notify_new_response(mail, query, response, responder_id):
         logger.info("Skipping response notification: responder is the query creator")
         return False
     
-    # Get recipient's email from config
-    if query_creator.id == User.get_all_users()[0].id:  # First user
-        recipient_email = current_app.config.get('USER1_EMAIL')
-    else:  # Second user
-        recipient_email = current_app.config.get('USER2_EMAIL')
+    # DIRECTLY USE THE EMAIL ADDRESS BASED ON WHO CREATED THE QUERY
+    if query_creator.email == 'zakeer1410@gmail.com':
+        recipient_email = 'zakeer1410@gmail.com'
+    else:
+        recipient_email = 'tanmaiyee.vadloori@gmail.com'
     
     # Generate absolute URL for the query
     query_url = url_for('query_detail', query_id=query.id, _external=True)
@@ -131,17 +116,14 @@ def notify_new_response(mail, query, response, responder_id):
 
 def notify_status_update(mail, query, updater_id, previous_status):
     """Send notification for status update."""
-    # If status didn't actually change, don't send notification
     if query.status == previous_status:
         return False
     
-    # Get the updater
     updater = User.get_by_id(updater_id)
     if not updater:
         logger.warning(f"Cannot send status update notification: updater {updater_id} not found")
         return False
     
-    # Get the query creator
     query_creator = User.get_by_id(query.user_id)
     if not query_creator:
         logger.warning(f"Cannot send status update notification: query creator {query.user_id} not found")
@@ -153,22 +135,19 @@ def notify_status_update(mail, query, updater_id, previous_status):
         logger.info("Skipping status notification: updater is the query creator")
         return False
     
-    # Determine recipient (notify the other user)
+    # DIRECTLY USE THE EMAIL ADDRESS OF THE OTHER USER
+    recipient_email = 'tanmaiyee.vadloori@gmail.com' if updater.email == 'zakeer1410@gmail.com' else 'zakeer1410@gmail.com'
+    
+    # Get recipient user object
     recipient = None
     for user in User.get_all_users():
-        if user.id != updater_id:
+        if user.email == recipient_email:
             recipient = user
             break
     
     if not recipient:
-        logger.warning("Cannot send status update notification: no recipient found")
+        logger.warning(f"Cannot send status update notification: recipient with email {recipient_email} not found")
         return False
-    
-    # Get recipient's email from config
-    if recipient.id == User.get_all_users()[0].id:  # First user
-        recipient_email = current_app.config.get('USER1_EMAIL')
-    else:  # Second user
-        recipient_email = current_app.config.get('USER2_EMAIL')
     
     # Generate absolute URL for the query
     query_url = url_for('query_detail', query_id=query.id, _external=True)

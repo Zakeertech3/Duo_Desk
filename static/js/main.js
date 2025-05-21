@@ -2,6 +2,14 @@
 
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Add meta tag for CSRF if not present
+    if (!document.querySelector('meta[name="csrf-token"]')) {
+        const meta = document.createElement('meta');
+        meta.name = 'csrf-token';
+        meta.content = document.querySelector('[name="csrf_token"]')?.value || '';
+        document.head.appendChild(meta);
+    }
+    
     // Auto-close alerts after 5 seconds
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert-dismissible');
@@ -44,15 +52,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const resourceId = this.getAttribute('data-resource-id');
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('csrf_token', csrfToken);
+            
             fetch(`/resources/${resourceId}/bookmark`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken
                 },
-                body: JSON.stringify({
-                    csrf_token: csrfToken
-                })
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
@@ -66,10 +75,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         this.classList.add('btn-outline-warning');
                         this.querySelector('span').textContent = 'Bookmark';
                     }
+                    showToast('Bookmark updated successfully!', 'success');
+                } else {
+                    showToast(data.message || 'Failed to update bookmark.', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                showToast('An error occurred while updating bookmark.', 'danger');
             });
         });
     });
@@ -170,6 +183,17 @@ function showToast(message, category = 'info') {
         'primary': 'bg-primary text-white',
         'secondary': 'bg-secondary text-white'
     }[category] || 'bg-info text-dark';
+    
+    // Create toast container if not exists
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        container.style.zIndex = '1050';
+        document.body.appendChild(container);
+    }
+    
     const toastHtml = `
         <div id="${toastId}" class="toast align-items-center ${categoryClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
             <div class="d-flex">
@@ -177,16 +201,14 @@ function showToast(message, category = 'info') {
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>`;
-    const container = document.getElementById('toastContainer');
-    if (container) {
-        container.insertAdjacentHTML('beforeend', toastHtml);
-        const toastEl = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-        toastEl.addEventListener('hidden.bs.toast', function() {
-            toastEl.remove();
-        });
-    }
+    
+    container.insertAdjacentHTML('beforeend', toastHtml);
+    const toastEl = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+    toastEl.addEventListener('hidden.bs.toast', function() {
+        toastEl.remove();
+    });
 }
 
 // AJAX for query response submission

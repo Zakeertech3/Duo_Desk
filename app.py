@@ -38,7 +38,7 @@ login_manager.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
 # Initialize database
-from models import init_db
+from models import init_db, get_db
 db = init_db(app)
 
 # After database is initialized, import models
@@ -75,19 +75,28 @@ def setup_app():
     if not os.path.exists(uploads_dir):
         os.makedirs(uploads_dir)
     
-    # Check if we have at least 2 users
+    # Force recreate the users
     users = User.get_all_users()
-    if len(users) < 2:
-        # Create default users if there are fewer than 2
-        if not User.get_by_email('zakeer1410@gmail.com'):
-            user1 = User('zakeer1410@gmail.com', 'Zakeer', 'password123')
-            user1.save()
-            logger.info("Created user: zakeer1410@gmail.com")
-        
-        if not User.get_by_email('zakeer1408@gmail.com'):  # Updated second user email
-            user2 = User('zakeer1408@gmail.com', 'Second User', 'password123')
-            user2.save()
-            logger.info("Created user: zakeer1408@gmail.com")
+    
+    # Delete existing users (reset them)
+    db = get_db()
+    db.users.delete_many({})
+    logger.info("Deleted existing users to recreate them")
+    
+    # Create users with correct passwords
+    user1 = User('zakeer1410@gmail.com', 'Jack', 'password123')
+    user1.save()
+    logger.info("Created user: Jack (zakeer1410@gmail.com)")
+    
+    user2 = User('tanmaiyee.vadloori@gmail.com', 'Jill', 'password123')
+    user2.save()
+    logger.info("Created user: Jill (tanmaiyee.vadloori@gmail.com)")
+    
+    # Ensure the email configuration is correct
+    app.config['USER1_EMAIL'] = 'zakeer1410@gmail.com'
+    app.config['USER2_EMAIL'] = 'tanmaiyee.vadloori@gmail.com'
+    
+    logger.info(f"Email configuration: USER1_EMAIL={app.config['USER1_EMAIL']}, USER2_EMAIL={app.config['USER2_EMAIL']}")
 
 # Initialize the app with setup function
 with app.app_context():
@@ -328,6 +337,26 @@ def update_query_status(query_id):
     
     return redirect(url_for('query_detail', query_id=query.id))
 
+@app.route('/queries/<query_id>/delete', methods=['POST'])
+@login_required
+def delete_query(query_id):
+    query = Query.get_by_id(query_id)
+    
+    if not query:
+        flash('Query not found.', 'danger')
+        return redirect(url_for('queries_list'))
+    
+    try:
+        if Query.delete(query_id):
+            flash('Query deleted successfully!', 'success')
+        else:
+            flash('Error deleting query.', 'danger')
+    except Exception as e:
+        logger.error(f"Error deleting query: {str(e)}")
+        flash(f'Error deleting query: {str(e)}', 'danger')
+    
+    return redirect(url_for('queries_list'))
+
 # Resource routes
 @app.route('/resources')
 @login_required
@@ -454,6 +483,26 @@ def toggle_resource_bookmark(resource_id):
     except Exception as e:
         logger.error(f"Error toggling bookmark: {str(e)}")
         return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/resources/<resource_id>/delete', methods=['POST'])
+@login_required
+def delete_resource(resource_id):
+    resource = Resource.get_by_id(resource_id)
+    
+    if not resource:
+        flash('Resource not found.', 'danger')
+        return redirect(url_for('resources_list'))
+    
+    try:
+        if Resource.delete(resource_id):
+            flash('Resource deleted successfully!', 'success')
+        else:
+            flash('Error deleting resource.', 'danger')
+    except Exception as e:
+        logger.error(f"Error deleting resource: {str(e)}")
+        flash(f'Error deleting resource: {str(e)}', 'danger')
+    
+    return redirect(url_for('resources_list'))
 
 @app.route('/uploads/<path:filename>')
 @login_required

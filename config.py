@@ -23,7 +23,7 @@ class Config:
     
     # Email recipients
     USER1_EMAIL = os.environ.get('USER1_EMAIL', 'zakeer1410@gmail.com')
-    USER2_EMAIL = os.environ.get('USER2_EMAIL', 'zakeer1408@gmail.com')
+    USER2_EMAIL = os.environ.get('USER2_EMAIL', 'tanmaiyee.vadloori@gmail.com')
     
     # Application settings
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload size

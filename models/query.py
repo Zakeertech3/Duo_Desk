@@ -139,6 +139,18 @@ class Query:
             raise Exception(f"Failed to update status: {str(e)}")
     
     @classmethod
+    def delete(cls, query_id):
+        """Delete query by ID."""
+        try:
+            db = get_db()
+            result = db.queries.delete_one({'_id': ObjectId(query_id)})
+            logger.info(f"Deleted query with ID: {query_id}")
+            return result.deleted_count > 0
+        except Exception as e:
+            logger.error(f"Error deleting query {query_id}: {str(e)}")
+            raise Exception(f"Failed to delete query: {str(e)}")
+    
+    @classmethod
     def get_by_id(cls, query_id):
         """Get query by ID."""
         try:
